@@ -1,0 +1,6 @@
+uvicorn[standard]=0.22.0
+fastapi==0.95.1
+bs4==4.12.2
+easyocr==1.6.2
+requests==2.29.0
+opencv-python-headless==4.5.5.60
