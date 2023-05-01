@@ -6,20 +6,16 @@ This service accepts an image of a product and returns its price data from vario
 ### Endpoints
 
 POST /api/price HTTP/1.1
+
 Content-Type: application/json
 ```
-
-
 {
     "image": "/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDA..."
 }
 ```
 
-HTTP/1.1 200 OK
-Content-Type: application/json
+Response:
 ```
-
-
 {
     "name": "Eti 142 gr Hoşbeş Gofret",
     "image": "https://cdn.cimri.io/market/600x600/eti-142-gr-hosbes-gofret-_1428163.jpg",
