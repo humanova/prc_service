@@ -1,7 +1,10 @@
+from io import BytesIO
+
+from easyocr import Reader
 import numpy as np
 import cv2
-from easyocr import Reader
-from io import BytesIO
+
+
 
 # for debugging purposes
 def _draw_and_save_text_sections(ocr_results, image_data):
@@ -23,9 +26,7 @@ def perform_ocr(image_data:bytes):
     # optional
     #_draw_and_save_text_sections(results, BytesIO(image_data))
 
-    text_sections = [r[1] for r in results if len(r[1]) > 3]
-    print(text_sections)
+    text_sections = [r[1] for r in results]
 
     full_text = " ".join(text_sections)
-    print(full_text)
     return full_text

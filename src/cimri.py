@@ -1,4 +1,5 @@
 import json
+
 import requests
 from bs4 import BeautifulSoup
 
@@ -65,7 +66,7 @@ def get_search_suggestions(query:str, limit:int=5):
 
     return {"products": products, "item_count": num_products}
 
-def get_product_offers(product_url):
+def get_product_offers(product_url:str):
     response = requests.get(product_url)
     if response.status_code == 200:
         return scrape_offers(response.text)
