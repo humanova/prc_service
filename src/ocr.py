@@ -1,4 +1,5 @@
 from io import BytesIO
+import re
 
 from easyocr import Reader
 import numpy as np
@@ -26,7 +27,7 @@ def perform_ocr(image_data:bytes):
     # optional
     #_draw_and_save_text_sections(results, BytesIO(image_data))
 
-    text_sections = [r[1] for r in results]
-
-    full_text = " ".join(text_sections)
+    text_sections_combined = " ".join([r[1] for r in results])
+    full_text = re.sub(r'\W+', ' ', text_sections_combined).strip()
+    
     return full_text

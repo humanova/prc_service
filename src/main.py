@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi import HTTPException
 from fastapi import Response
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 import uvicorn
 
 import cimri
@@ -16,23 +16,34 @@ app = FastAPI()
 class PriceResponse(BaseModel):
     name: str
     image: str
+    query: str
     prices: List[dict]
 
-class ImageRequest(BaseModel):
-    image: str
-
+class PriceRequest(BaseModel):
+    image: Optional[str] = None
+    text: Optional[str] = None
 
 @app.post("/api/price", response_model=PriceResponse)
-async def get_price(image_req: ImageRequest):
-    # decode base64 image string and convert to bytes object
-    image_data = base64.b64decode(image_req.image)
-    
-    # perform ocr
-    text = ocr.perform_ocr(image_data)
-    print(f"OCR result : {text}")
+async def get_price(price_req: PriceRequest):
+    query = str()
+    if price_req.image:
+        # decode base64 image string and convert to bytes object
+        image_data = base64.b64decode(price_req.image)
+        ocr_text = ocr.perform_ocr(image_data)
+        print(f"OCR result : {ocr_text}")
 
+        # to handle bad ocr results, use a search result from DDG 
+        search_result_titles = cimri.get_duckduckgo_search_results(ocr_text)
+        print(search_result_titles)
+        query = search_result_titles[0]
+    else:
+        query = price_req.text
+        print(f"request query {query}")
+    if not query:
+        raise HTTPException(status_code=400, detail="No text or image provided")
+    
     # send sugesstion request
-    cimri_data = cimri.get_search_suggestions(text, limit=5)
+    cimri_data = cimri.get_search_suggestions(query, limit=5)
     if not cimri_data or len(cimri_data["products"]) == 0:
         raise HTTPException(status_code=404, detail="No product found")
     
@@ -60,7 +71,7 @@ async def get_price(image_req: ImageRequest):
         print(f"Saving to cache using the key {product_id} : {prices}")
         cache.store_product_prices(product_id, prices)
 
-    price_response = PriceResponse(name=product_title, image=image_url, prices=prices)
+    price_response = PriceResponse(name=product_title, image=image_url, query=query, prices=prices)
     return price_response
 
 if __name__ == "__main__":

@@ -1,4 +1,7 @@
 import json
+import re
+from duckduckgo_search import ddg, ddg_images
+from fuzzywuzzy import fuzz
 
 import requests
 from bs4 import BeautifulSoup
@@ -70,6 +73,22 @@ def get_product_offers(product_url:str):
     response = requests.get(product_url)
     if response.status_code == 200:
         return scrape_offers(response.text)
+    else:
+        return None
+
+def get_duckduckgo_search_results(query:str, threshold:int=50):
+    results = ddg(f"{query} site:cimri.com", region="tr-tr", max_results=10)
+    if results is not None:
+        titles_with_similarity = []
+        for result in results:
+            # remove suffixes like "- cimri.com"
+            title = re.sub("\s-\s\w+\.\w+", "", result['title'])
+            similarity = fuzz.token_set_ratio(title, query)
+            titles_with_similarity.append((title, similarity))
+
+        titles_with_similarity.sort(key=lambda x: x[1], reverse=True)
+        filtered_titles = [title for title, similarity in titles_with_similarity if similarity >= threshold]
+        return filtered_titles
     else:
         return None
 
