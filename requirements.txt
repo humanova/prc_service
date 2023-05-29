@@ -2,7 +2,7 @@ uvicorn[standard]==0.22.0
 fastapi==0.95.1
 bs4==0.0.1
 easyocr==1.6.2
-requests==2.29.0
+requests==2.31.0
 opencv-python-headless==4.5.4.60
 redis==4.5.4
 duckduckgo_search==3.6.0

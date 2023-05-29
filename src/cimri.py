@@ -1,11 +1,14 @@
 import json
 import re
-from duckduckgo_search import ddg, ddg_images
-from fuzzywuzzy import fuzz
+from itertools import islice
 
 import requests
+from duckduckgo_search import DDGS
+from fuzzywuzzy import fuzz
 from bs4 import BeautifulSoup
 
+
+ddgs = DDGS()
 
 cookies = {
     'cimri_device_id': 'd32abf0e-7e0b-460f-9326-1564408f0b8e',
@@ -77,10 +80,10 @@ def get_product_offers(product_url:str):
         return None
 
 def get_duckduckgo_search_results(query:str, threshold:int=50):
-    results = ddg(f"{query} site:cimri.com", region="tr-tr", max_results=10)
+    results = ddgs.text(f"{query} site:cimri.com", region="tr-tr", safesearch="Off")
     if results is not None:
         titles_with_similarity = []
-        for result in results:
+        for result in islice(results, 10):
             # remove suffixes like "- cimri.com"
             title = re.sub("\s-\s\w+\.\w+", "", result['title'])
             similarity = fuzz.token_set_ratio(title, query)
