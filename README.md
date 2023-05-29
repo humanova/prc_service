@@ -19,6 +19,7 @@ Response:
 {
     "name": "Eti 142 gr Hoşbeş Gofret",
     "image": "https://cdn.cimri.io/market/600x600/eti-142-gr-hosbes-gofret-_1428163.jpg",
+    "query": "Eti 142 gr Hoşbeş Gofret",
     "prices": [
         {
             "store": "şok",
