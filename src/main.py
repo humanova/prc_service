@@ -2,7 +2,6 @@ import base64
 
 from fastapi import FastAPI
 from fastapi import HTTPException
-from fastapi import Response
 from pydantic import BaseModel
 from typing import List, Optional
 import uvicorn
@@ -10,8 +9,14 @@ import uvicorn
 import cimri
 import ocr
 import cache
+import preprocess
+import numpy as np
+import cv2
+
+from ocr import OCR
 
 app = FastAPI()
+ocr = OCR()
 
 class PriceResponse(BaseModel):
     name: str
@@ -27,11 +32,10 @@ class PriceRequest(BaseModel):
 async def get_price(price_req: PriceRequest):
     query = str()
     if price_req.image:
-        # decode base64 image string and convert to bytes object
-        image_data = base64.b64decode(price_req.image)
+        nparr = np.fromstring(base64.b64decode(price_req.image), np.uint8)
+        image_data = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
         ocr_text = ocr.perform_ocr(image_data)
         print(f"OCR result : {ocr_text}")
-
         # to handle bad ocr results, use a search result from DDG 
         search_result_titles = cimri.get_duckduckgo_search_results(ocr_text)
         print(search_result_titles)
