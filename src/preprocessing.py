@@ -1,10 +1,9 @@
 import cv2
 import numpy as np
 
-class Preprocess:
+class Preprocessing:
 
     def preprocess_image(self, image_data):
-
         (H, W) = image_data.shape[:2]
 
         if (H, W) > (1280, 1280):

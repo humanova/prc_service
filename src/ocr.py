@@ -1,9 +1,9 @@
 from easyocr import Reader
 import numpy as np
 import cv2
-from preprocess import Preprocess
+from preprocessing import Preprocessing
 
-class OCR(Preprocess):
+class OCR(Preprocessing):
 
     def __init__(self):
         self.reader = Reader(['en','tr'], gpu=False)
@@ -22,13 +22,11 @@ class OCR(Preprocess):
         cv2.imwrite("debug".rsplit('.', 1)[0] + '_bbox.jpg', image)
 
     def text_detection(self, image_data):
-
         horizontal_list, free_list = self.reader.detect(image_data, text_threshold=0.85)
        
         return horizontal_list, free_list
     
     def text_extraction(self, image_data, horizontal_list, free_list):
-
         allow_list = 'ABCÇDEFGĞHIİJKLMNOÖPRSŞTUÜVYZWXabcçdefgğhıijklmnoöprsştuüvyzwx0123456789 '
 
         results = self.reader.recognize(image_data, horizontal_list=horizontal_list[0], free_list=free_list[0], allowlist=allow_list, detail=0)
@@ -37,7 +35,6 @@ class OCR(Preprocess):
         return full_text
 
     def perform_ocr(self, image_data):
-
         nparr = np.fromstring(image_data, np.uint8)
         image_data = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
