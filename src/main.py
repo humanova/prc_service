@@ -41,7 +41,7 @@ async def get_price(price_req: PriceRequest):
     if not query:
         raise HTTPException(status_code=400, detail="No text or image provided")
     
-    # send sugesstion request
+    # send suggestion request
     cimri_data = cimri.get_search_suggestions(query, limit=5)
     if not cimri_data or len(cimri_data["products"]) == 0:
         raise HTTPException(status_code=404, detail="No product found")

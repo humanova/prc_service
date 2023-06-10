@@ -3,8 +3,7 @@ import numpy as np
 import cv2
 from preprocessing import Preprocessing
 
-class OCR(Preprocessing):
-
+class OCR:
     def __init__(self):
         self.reader = Reader(['en','tr'], gpu=False)
 
@@ -23,7 +22,6 @@ class OCR(Preprocessing):
 
     def text_detection(self, image_data):
         horizontal_list, free_list = self.reader.detect(image_data, text_threshold=0.85)
-       
         return horizontal_list, free_list
     
     def text_extraction(self, image_data, horizontal_list, free_list):
@@ -38,7 +36,7 @@ class OCR(Preprocessing):
         nparr = np.fromstring(image_data, np.uint8)
         image_data = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
-        preprocessed_image = self.preprocess_image(image_data)
+        preprocessed_image = Preprocessing.preprocess_image(image_data)
         
         horizontal_list, free_list = self.text_detection(preprocessed_image)
         full_text = self.text_extraction(preprocessed_image, horizontal_list, free_list)
