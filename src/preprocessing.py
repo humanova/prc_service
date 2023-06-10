@@ -7,7 +7,7 @@ class Preprocessing:
         (H, W) = image_data.shape[:2]
 
         resized_image = None
-        if H > 1280 or W > 1280:
+        if H > 1280 and W > 1280:
             resized_image = cv2.resize(image_data, (1280, 1280), interpolation=cv2.INTER_CUBIC)
             img = resized_image
 
