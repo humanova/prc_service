@@ -7,13 +7,9 @@ from typing import List, Optional
 import uvicorn
 
 import cimri
-import ocr
-import cache
-import preprocess
-import numpy as np
-import cv2
-
 from ocr import OCR
+import cache
+
 
 app = FastAPI()
 ocr = OCR()
@@ -32,8 +28,7 @@ class PriceRequest(BaseModel):
 async def get_price(price_req: PriceRequest):
     query = str()
     if price_req.image:
-        nparr = np.fromstring(base64.b64decode(price_req.image), np.uint8)
-        image_data = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        image_data = base64.b64decode(price_req.image)
         ocr_text = ocr.perform_ocr(image_data)
         print(f"OCR result : {ocr_text}")
         # to handle bad ocr results, use a search result from DDG 

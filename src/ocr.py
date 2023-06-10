@@ -38,6 +38,9 @@ class OCR(Preprocess):
 
     def perform_ocr(self, image_data):
 
+        nparr = np.fromstring(image_data, np.uint8)
+        image_data = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+
         preprocessed_image = self.preprocess_image(image_data)
         
         horizontal_list, free_list = self.text_detection(preprocessed_image)
