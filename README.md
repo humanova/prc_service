@@ -1,7 +1,11 @@
 # PRC Service
 
-This service accepts an image of a product and returns its price data from various online stores. Product name is extracted from the image using OCR, and the price data is retrieved by querying the Cimri API.
+This service accepts an image of a product and returns its price data from various online stores. 
+- Product name is extracted from the image using EasyOCR. 
+- The price data is then retrieved from Cimri.com and cached (for an hour) using Redis.
+- To handle the bad OCR output, a Fuzzy Matching algorithm is applied to DuckDuckGo search results before querying the Cimri API.
 
+[Mobile App](https://github.com/humanova/prc_app)
 
 ### Endpoints
 
