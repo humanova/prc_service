@@ -20,11 +20,11 @@ class OCR:
 
         cv2.imwrite("debug".rsplit('.', 1)[0] + '_bbox.jpg', image)
 
-    def text_detection(self, image_data):
+    def detect_text(self, image_data):
         horizontal_list, free_list = self.reader.detect(image_data, text_threshold=0.85)
         return horizontal_list, free_list
     
-    def text_extraction(self, image_data, horizontal_list, free_list):
+    def extract_text(self, image_data, horizontal_list, free_list):
         allow_list = 'ABCÇDEFGĞHIİJKLMNOÖPRSŞTUÜVYZWXabcçdefgğhıijklmnoöprsştuüvyzwx0123456789 '
 
         results = self.reader.recognize(image_data, horizontal_list=horizontal_list[0], free_list=free_list[0], allowlist=allow_list, detail=0)
@@ -38,10 +38,8 @@ class OCR:
 
         preprocessed_image = Preprocessing.preprocess_image(image_data)
         
-        horizontal_list, free_list = self.text_detection(preprocessed_image)
-        full_text = self.text_extraction(preprocessed_image, horizontal_list, free_list)
+        horizontal_list, free_list = self.detect_text(preprocessed_image)
+        full_text = self.extract_text(preprocessed_image, horizontal_list, free_list)
         
-        # optional
         #_draw_and_save_text_sections(results, BytesIO(image_data))
-
         return full_text
