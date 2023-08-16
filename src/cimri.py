@@ -21,20 +21,16 @@ headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/110.0',
     'Accept': '*/*',
     'Accept-Language': 'en-GB,en;q=0.5',
-    # 'Accept-Encoding': 'gzip, deflate, br',
-    'Referer': 'https://www.cimri.com/market/arama?q=judum',
+    'Referer': 'https://www.cimri.com/market/arama',
     'content-type': 'application/json',
     'credentials': 'same-origin',
     'Origin': 'https://www.cimri.com',
     'DNT': '1',
     'Alt-Used': 'www.cimri.com',
     'Connection': 'keep-alive',
-    # 'Cookie': 'cimri_device_id=d32abf0e-7e0b-460f-9326-1564408f0b8e; CimriCookiePolicy=1; cimri_session_id=2ef84422-7824-4cbf-a012-8c0d964f3b20; cimri_location=; __cf_bm=XryHuf9tF9w3hirAdJM29gla5hQOvc075VITRkMFiB8-1678478118-0-AWNF24vB7vorQJWRkeAKZWAVJ24uoeKR1MbvIhg/TdQ5S8NhZ2Ff61WmItWvtF87TTlFGC6DS3XGFcXWlGQ1Fm/H3xlHUaxtgzi40Xygudx8yp/2VBv7VdM8oIIumD2FDA==',
     'Sec-Fetch-Dest': 'empty',
     'Sec-Fetch-Mode': 'cors',
     'Sec-Fetch-Site': 'same-origin',
-    # Requests doesn't support trailers
-    # 'TE': 'trailers',
 }
 
 
@@ -42,12 +38,12 @@ def scrape_offers(html: str):
     soup = BeautifulSoup(html, 'html.parser')
     script_tag = soup.find('script', {'id': '__NEXT_DATA__'})
     data = json.loads(script_tag.contents[0])
-    offers = data['props']['pageProps']['data']['productServiceProductWithSeoAndSpecQuery']['offers']
+    offers = data['props']['pageProps']['product']['offersOnline']
 
     results = []
     for offer in offers:
         results.append({
-            'store': offer['merchantName'],
+            'store': f"{offer['merchantData']['name']} - {offer['depot']['merchantSellerName']}",
             'price': offer['price']
         })
 
@@ -59,7 +55,7 @@ def get_search_suggestions(query:str, limit:int=5):
         'variables': {
             'keyword': query,
         },
-        'query': 'query productServiceSuggestion($keyword: String!) {\n  productServiceSuggestionQuery(keyword: $keyword, limit: 20) {\n    success {\n      numFound\n      categories {\n        category {\n          id\n          name\n          slug\n        }\n      }\n      products {\n        id\n        title\n        imageIds\n        path\n      }\n    }\n  }\n}\n'
+        'query': f'query productServiceSuggestion($keyword: String!) {{\n productServiceSuggestionQuery(keyword: $keyword, limit: {limit}) {{\nsuccess {{\n numFound\n categories {{\n category {{\n id \n name\n slug\n}}\n}}\nproducts {{\n id\n  title\n imageIds\n path\n}}\n}}\n }}\n}}\n'
     }
     response = requests.post('https://www.cimri.com/api/market-api', cookies=cookies, headers=headers, json=json_data)
     if response.status_code == 200:
