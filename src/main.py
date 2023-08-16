@@ -1,7 +1,6 @@
 import base64
 
-from fastapi import FastAPI
-from fastapi import HTTPException
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional
 import uvicorn
@@ -26,6 +25,9 @@ class PriceRequest(BaseModel):
 
 @app.post("/api/price", response_model=PriceResponse)
 async def get_price(price_req: PriceRequest):
+    if not price_req.image and not price_req.text:
+        raise HTTPException(status_code=400, detail="No text or image provided")
+    
     query = str()
     if price_req.image:
         image_data = base64.b64decode(price_req.image)
@@ -38,8 +40,6 @@ async def get_price(price_req: PriceRequest):
     else:
         query = price_req.text
         print(f"request query {query}")
-    if not query:
-        raise HTTPException(status_code=400, detail="No text or image provided")
     
     # send suggestion request
     cimri_data = cimri.get_search_suggestions(query, limit=5)
@@ -52,23 +52,16 @@ async def get_price(price_req: PriceRequest):
     product_url = f'https://www.cimri.com{product["path"]}'
     image_url = f"https://cdn.cimri.io/market/600x600/-_{product['imageIds'][0]}.jpg"
     
-    prices = []
-    # check cache for the product prices
-    cache_data = cache.retrieve_product_prices(product_id)
-    if cache_data:
-        print(f"Cache data found for the key {product_id} : {cache_data}")
-        prices = cache_data
-    else:
+    prices = cache.retrieve_product_prices(product_id)
+    if not prices:
         offers = cimri.get_product_offers(product_url)
         if not offers:
             raise HTTPException(status_code=404, detail="No offer found for the product")
-        for offer in offers:
-            store_name = offer["store"]
-            price = offer["price"]
-            prices.append({"store": store_name, "price": price})
-        # save prices to cache
-        print(f"Saving to cache using the key {product_id} : {prices}")
+        prices = [{"store": offer["store"], "price": offer["price"]} for offer in offers]
         cache.store_product_prices(product_id, prices)
+        print(f"Saving to cache using the key {product_id} : {prices}")
+    else:
+        print(f"Cache data found for the key {product_id} : {prices}")
 
     price_response = PriceResponse(name=product_title, image=image_url, query=query, prices=prices)
     return price_response
