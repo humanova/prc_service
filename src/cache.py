@@ -26,7 +26,7 @@ def retrieve_product_prices(product_id:int):
         prices_cache_key = f"prices:{product_id}"
         c_prices = redis_client.get(prices_cache_key)
 
-        if c_prices and not is_cache_stale(c_prices):
+        if c_prices and not is_cache_stale(product_id):
             return json.loads(c_prices)
         else:
             return None
